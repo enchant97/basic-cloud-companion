@@ -96,12 +96,7 @@ namespace BasicCloudCompanionCLI
         {
             Console.WriteLine("Loading root directories...");
             CurrPath = null;
-            // TODO: make sure all paths use / at API end
-            var tempRoots = cloudApi.GetDirectoryRoots().Result;
-            DirRoots = new BasicCloudApi.Types.DirectoryRoots(
-                tempRoots.shared.Replace("\\", "/"),
-                tempRoots.home.Replace("\\", "/")
-            );
+            DirRoots = cloudApi.GetDirectoryRoots().Result;
 
             bool valid = false;
             while (!valid)
@@ -133,8 +128,6 @@ namespace BasicCloudCompanionCLI
                         break;
                 }
             }
-            // TODO: make sure all paths use / at API end
-            CurrPath = CurrPath.Replace("\\", "/");
         }
         static void DoNavigateCurrDir()
         {
@@ -208,8 +201,7 @@ namespace BasicCloudCompanionCLI
                 else if (choice == 2) { }
                 else if (choice == 3 && allowEdit == true)
                 {
-                    // TODO: make sure all paths use / at API end
-                    string downloadPath = (CurrPath + "/" + fileName).Replace("\\", "/");
+                    string downloadPath = (CurrPath + "/" + fileName);
                     Console.Clear();
                     Console.WriteLine("Deleting File...");
                     cloudApi.DeleteFile(downloadPath).Wait();
@@ -244,14 +236,11 @@ namespace BasicCloudCompanionCLI
                 else if (choice == 2)
                 {
                     CurrPath += "/" + folderName;
-                    // TODO: make sure all paths use / at API end
-                    CurrPath = CurrPath.Replace("\\", "/");
                 }
                 else if (choice == 3) { }
                 else if (choice == 4 && allowEdit == true)
                 {
-                    // TODO: make sure all paths use / at API end
-                    string downloadPath = (CurrPath + "/" + folderName).Replace("\\", "/");
+                    string downloadPath = (CurrPath + "/" + folderName);
                     Console.Clear();
                     Console.WriteLine("Deleting Directory...");
                     cloudApi.DeleteDirectory(downloadPath).Wait();
