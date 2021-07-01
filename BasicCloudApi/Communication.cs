@@ -52,7 +52,7 @@ namespace BasicCloudApi
         /// <param name="username">the users username</param>
         /// <param name="password">the users password</param>
         /// <returns>the access token</returns>
-        public async Task<Types.Token> PostLoginToken(string username, string password)
+        public async Task<Types.Token> PostLoginToken(string username, string password, bool save_token)
         {
             var values = new Dictionary<string, string> { { "username", username }, { "password", password } };
             var form_content = new FormUrlEncodedContent(values);
@@ -61,6 +61,7 @@ namespace BasicCloudApi
             if (!response.IsSuccessStatusCode) { CheckForResponseErrors(response.StatusCode); }
             var token = await response.Content.ReadFromJsonAsync<Types.Token>();
             if (token.token_type != "bearer") { throw new Exception("Unknown token type"); }
+            if (save_token) { AuthToken = token; }
             Debug.WriteLine("got bearer token: " + token.access_token);
             return token;
         }
