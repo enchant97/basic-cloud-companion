@@ -198,13 +198,24 @@ namespace BasicCloudCompanionCLI
                     Console.ReadKey();
                 }
                 else if (choice == 1) { }
-                else if (choice == 2) { }
+                else if (choice == 2)
+                {
+                    string downloadPath = ShowFileDialogPicker();
+                    if (downloadPath != null)
+                    {
+                        Console.WriteLine("Downloading File...");
+                        var httpContent = cloudApi.DownloadFile(CurrPath + "/" + fileName).Result;
+                        Console.WriteLine("Writing To System");
+                        BasicCloudApi.Helpers.WriteHttpContentToFile(downloadPath, httpContent).Wait();
+                        Console.Clear();
+                    }
+                }
                 else if (choice == 3 && allowEdit == true)
                 {
-                    string downloadPath = (CurrPath + "/" + fileName);
+                    string deletePath = (CurrPath + "/" + fileName);
                     Console.Clear();
                     Console.WriteLine("Deleting File...");
-                    cloudApi.DeleteFile(downloadPath).Wait();
+                    cloudApi.DeleteFile(deletePath).Wait();
                 }
                 else
                 {
@@ -237,13 +248,24 @@ namespace BasicCloudCompanionCLI
                 {
                     CurrPath += "/" + folderName;
                 }
-                else if (choice == 3) { }
+                else if (choice == 3)
+                {
+                    string downloadPath = ShowFileDialogPicker();
+                    if (downloadPath != null)
+                    {
+                        Console.WriteLine("Downloading Zip...");
+                        var httpContent = cloudApi.DownloadDirectoryAsZip(CurrPath + "/" + folderName).Result;
+                        Console.WriteLine("Writing To System");
+                        BasicCloudApi.Helpers.WriteHttpContentToFile(downloadPath, httpContent).Wait();
+                        Console.Clear();
+                    }
+                }
                 else if (choice == 4 && allowEdit == true)
                 {
-                    string downloadPath = (CurrPath + "/" + folderName);
+                    string deletePath = (CurrPath + "/" + folderName);
                     Console.Clear();
                     Console.WriteLine("Deleting Directory...");
-                    cloudApi.DeleteDirectory(downloadPath).Wait();
+                    cloudApi.DeleteDirectory(deletePath).Wait();
                 }
                 else
                 {
@@ -252,6 +274,15 @@ namespace BasicCloudCompanionCLI
                     valid = false;
                 }
             }
+        }
+        static string ShowFileDialogPicker()
+        {
+            Console.WriteLine("Enter File Path (or leave blank to exit):");
+            string filePath = Console.ReadLine();
+            filePath = filePath.Trim();
+            Console.Clear();
+            if (filePath != string.Empty) { return filePath; }
+            return null;
         }
     }
 }
