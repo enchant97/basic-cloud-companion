@@ -206,7 +206,14 @@ namespace BasicCloudCompanionCLI
                 }
                 else if (choice == 1) { }
                 else if (choice == 2) { }
-                else if (choice == 3 && allowEdit == true) { }
+                else if (choice == 3 && allowEdit == true)
+                {
+                    // TODO: make sure all paths use / at API end
+                    string downloadPath = (CurrPath + "/" + fileName).Replace("\\", "/");
+                    Console.Clear();
+                    Console.WriteLine("Deleting File...");
+                    cloudApi.DeleteFile(downloadPath).Wait();
+                }
                 else
                 {
                     Console.WriteLine("Input Invalid");
@@ -241,7 +248,14 @@ namespace BasicCloudCompanionCLI
                     CurrPath = CurrPath.Replace("\\", "/");
                 }
                 else if (choice == 3) { }
-                else if (choice == 4 && allowEdit == true) { }
+                else if (choice == 4 && allowEdit == true)
+                {
+                    // TODO: make sure all paths use / at API end
+                    string downloadPath = (CurrPath + "/" + folderName).Replace("\\", "/");
+                    Console.Clear();
+                    Console.WriteLine("Deleting Directory...");
+                    cloudApi.DeleteDirectory(downloadPath).Wait();
+                }
                 else
                 {
                     Console.WriteLine("Input Invalid");
@@ -249,7 +263,6 @@ namespace BasicCloudCompanionCLI
                     valid = false;
                 }
             }
-            
         }
     }
 }
