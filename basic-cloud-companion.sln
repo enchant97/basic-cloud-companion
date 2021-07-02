@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicCloudApi", "BasicCloud
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicCloudCompanionCLI", "BasicCloudCompanionCLI\BasicCloudCompanionCLI.csproj", "{5E48F698-E2B7-4C48-8970-BCC5EA56C7AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicCloudCompanionGtk", "BasicCloudCompanionGtk\BasicCloudCompanionGtk.csproj", "{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{5E48F698-E2B7-4C48-8970-BCC5EA56C7AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5E48F698-E2B7-4C48-8970-BCC5EA56C7AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5E48F698-E2B7-4C48-8970-BCC5EA56C7AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
