@@ -27,5 +27,25 @@ namespace BasicCloudCompanionGtk.Helpers
             dialog.Run();
             dialog.Destroy();
         }
+        /// <summary>
+        /// Asks the user user a question,
+        /// they can either reply with Yes/No
+        /// </summary>
+        /// <param name="parent">the parent window</param>
+        /// <param name="text">the message to show</param>
+        /// <returns>what response was given</returns>
+        public static ResponseType ShowQuestion(Window parent, string text)
+        {
+            MessageDialog dialog = new(
+                parent,
+                0,
+                MessageType.Question,
+                ButtonsType.YesNo,
+                text
+            );
+            var response = dialog.Run();
+            dialog.Destroy();
+            return (ResponseType)response;
+        }
     }
 }

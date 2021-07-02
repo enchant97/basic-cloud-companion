@@ -1,5 +1,6 @@
 ﻿using Gtk;
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -11,13 +12,13 @@ namespace BasicCloudCompanionGtk.Views
         private readonly Button loginBnt;
         private readonly Button sharesBnt;
         private readonly Button createDirBnt;
+        private readonly Button toParentDirBnt;
         private readonly Grid navigationGrid;
 
         private string Username;
         private string CurrPath;
         private readonly BasicCloudApi.Communication cloudApi;
-        private BasicCloudApi.Types.DirectoryRoots DirRoots;
-
+        private string[] RootPaths;
         public MainWindow() : base("Basic Cloud Companion - Gtk Edition")
         {
             // TODO: load this from config
@@ -39,9 +40,14 @@ namespace BasicCloudCompanionGtk.Views
             loginBnt.Clicked += LoginOnClick;
             controlBox.PackStart(loginBnt, false, false, 0);
             sharesBnt = new("Shares");
+            sharesBnt.Clicked += NavigateToRootsOnClick;
             controlBox.PackStart(sharesBnt, false, false, 0);
             createDirBnt = new("Create Directory");
+            createDirBnt.Clicked += CreateDirOnClick;
             controlBox.PackStart(createDirBnt, false, false, 0);
+            toParentDirBnt = new("Back");
+            toParentDirBnt.Clicked += ToParentDirOnClick;
+            controlBox.PackStart(toParentDirBnt, false, false, 0);
 
             navigationGrid = new();
             navigationGrid.ColumnHomogeneous = true;
@@ -53,28 +59,53 @@ namespace BasicCloudCompanionGtk.Views
             LoggedOut();
             ShowAll();
         }
+        #region Misc Action Handling
         private void LoggedOut()
         {
             loginBnt.Sensitive = true;
+
             sharesBnt.Sensitive = false;
             createDirBnt.Sensitive = false;
+            toParentDirBnt.Sensitive = false;
         }
         private void JustLoggedIn()
         {
             loginBnt.Sensitive = false;
-            // TODO: do other stuff?
+            ToggleControlBoxButtons();
             _ = LoadRoots();
+        }
+        /// <summary>
+        /// handling enabling/disabling the control box buttons
+        /// </summary>
+        private void ToggleControlBoxButtons()
+        {
+            if (string.IsNullOrEmpty(CurrPath))
+            {
+                // at root
+                sharesBnt.Sensitive = false;
+                createDirBnt.Sensitive = false;
+                toParentDirBnt.Sensitive = false;
+            }
+            else
+            {
+                // inside a directory
+                sharesBnt.Sensitive = true;
+                createDirBnt.Sensitive = true;
+                toParentDirBnt.Sensitive = true;
+            }
         }
         private void OnDelete(object obj, DeleteEventArgs args)
         {
             Application.Quit();
         }
+        #endregion
+        #region Utility
         /// <summary>
         /// Handle known HTTP errors
         /// </summary>
         /// <param name="exception">the HTTP exception</param>
         /// <returns>returns if the exception was handled</returns>
-        private bool HandleHttpExceptions(HttpRequestException exception)
+        protected bool HandleHttpExceptions(HttpRequestException exception)
         {
             if (exception.InnerException is System.Net.Sockets.SocketException)
             {
@@ -87,6 +118,30 @@ namespace BasicCloudCompanionGtk.Views
             else { return false;  }
             return true;
         }
+        /// <summary>
+        /// allows smart joining of a path with the current path
+        /// </summary>
+        /// <param name="pathPart">the path to join</param>
+        /// <returns>the joined path</returns>
+        protected string JoinWithCurrentPath(string pathPart)
+        {
+            if (!string.IsNullOrEmpty(CurrPath))
+            {
+                return CurrPath + "/" + pathPart;
+            }
+            return pathPart;
+        }
+        /// <summary>
+        /// Gets the parent directory from the CurrPath,
+        /// if the current path is a root will return null.
+        /// </summary>
+        /// <returns>the parent directory or null</returns>
+        protected string GetCurrentParentDir()
+        {
+            if (RootPaths.Contains(CurrPath)) { return null; }
+            return BasicCloudApi.Helpers.GetParentDir(CurrPath);
+        }
+        #endregion
         #region Navigation Control
         /// <summary>
         /// Add a row to the navigation grid
@@ -101,8 +156,9 @@ namespace BasicCloudCompanionGtk.Views
             Button chdirBnt = new()
             {
                 Label = "Navigate",
-                Sensitive = isDir
+                Sensitive = isDir,
             };
+
             Button rmBnt = new()
             {
                 Label = "Delete",
@@ -114,7 +170,19 @@ namespace BasicCloudCompanionGtk.Views
                 Sensitive = isDownloadable
             };
 
-            // TODO: implement click handlers
+            if (isDir)
+            {
+                // setup dir click handlers
+                chdirBnt.Clicked += delegate (object sender, EventArgs e) { ChangeDirOnClick(sender, e, path); };
+                rmBnt.Clicked += delegate (object sender, EventArgs e) { DeleteDirOnClick(sender, e, path); };
+                downloadBnt.Clicked += delegate (object sender, EventArgs e) { DownloadDirOnClick(sender, e, path); };
+            }
+            else
+            {
+                // setup file click handlers
+                rmBnt.Clicked += delegate (object sender, EventArgs e) { DeleteFileOnClick(sender, e, path); };
+                downloadBnt.Clicked += delegate (object sender, EventArgs e) { DownloadFileOnClick(sender, e, path); };
+            }
 
             navigationGrid.Attach(nameLabel, 0, navigationGrid.Children.Length, 1, 1);
             navigationGrid.AttachNextTo(chdirBnt, nameLabel, PositionType.Right, 1, 1);
@@ -133,31 +201,64 @@ namespace BasicCloudCompanionGtk.Views
                 navigationGrid.RemoveRow(i);
             }
         }
+        /// <summary>
+        /// Add directory content to the navigation grid
+        /// </summary>
+        /// <param name="contents"></param>
+        private void AddDirContentToNavigation(BasicCloudApi.Types.Content[] contents)
+        {
+            foreach (var dirDontent in contents)
+            {
+                AddNavigationRow(
+                    dirDontent.name.Replace("\\", "/"),
+                    dirDontent.meta.is_directory
+                );
+            }
+        }
         #endregion
+        #region BasicCloudApi Usage
+        /// <summary>
+        /// Load the root directories (home and shared) and add to screen
+        /// </summary>
         private async Task LoadRoots()
         {
             try
             {
-                createDirBnt.Sensitive = false;
-                sharesBnt.Sensitive = false;
-
-                DirRoots = await cloudApi.GetDirectoryRoots();
-
                 ClearNavigation();
 
-                AddNavigationRow(DirRoots.home, true, false);
-                AddNavigationRow(DirRoots.shared, true, false);
+                var directoryRoots = await cloudApi.GetDirectoryRoots();
 
-                ClearNavigation();
+                RootPaths = new string[]
+                {
+                    directoryRoots.home,
+                    directoryRoots.shared
+                };
 
-                AddNavigationRow(DirRoots.home, true, false);
-                AddNavigationRow(DirRoots.shared, true, false);
+                AddNavigationRow(RootPaths[0], true, false);
+                AddNavigationRow(RootPaths[1], true, false);
             }
             catch (HttpRequestException err)
             {
                 if (!HandleHttpExceptions(err)) { throw; }
             }
         }
+        /// <summary>
+        /// load the current directory path's contents
+        /// </summary>
+        private async Task LoadCurrentDirContents()
+        {
+            try
+            {
+                ClearNavigation();
+                var directoryContents = await cloudApi.PostDirectoryContents(CurrPath);
+                AddDirContentToNavigation(directoryContents);
+            }
+            catch (HttpRequestException err)
+            {
+                if (!HandleHttpExceptions(err)) { throw; }
+            }
+        }
+        #endregion
         #region Button Click Handlers
         private async void LoginOnClick(object obj, EventArgs args)
         {
@@ -189,6 +290,77 @@ namespace BasicCloudCompanionGtk.Views
                 }
             }
             dialog.Destroy();
+        }
+        private async void NavigateToRootsOnClick(object obj, EventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("navigate to roots button clicked");
+            CurrPath = null;
+            ToggleControlBoxButtons();
+            await LoadRoots();
+        }
+        private async void ToParentDirOnClick(object obj, EventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("navigate to parent directory button clicked");
+            CurrPath = GetCurrentParentDir();
+            ToggleControlBoxButtons();
+            if (string.IsNullOrEmpty(CurrPath)) { await LoadRoots(); }
+            else { await LoadCurrentDirContents(); }
+        }
+        private async void ChangeDirOnClick(object obj, EventArgs args, string path)
+        {
+            System.Diagnostics.Debug.WriteLine("change directory button clicked");
+            CurrPath = JoinWithCurrentPath(path);
+            ToggleControlBoxButtons();
+            await LoadCurrentDirContents();
+        }
+        private void CreateDirOnClick(object obj, EventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("make directory button clicked");
+            // TODO: implement
+        }
+        private async void DeleteDirOnClick(object obj, EventArgs args, string path)
+        {
+            System.Diagnostics.Debug.WriteLine("delete directory button clicked");
+            var response = Helpers.Alerts.ShowQuestion(this, "are you sure you want to delete the directory?");
+            if (response == ResponseType.Yes)
+            {
+                var fullPath = JoinWithCurrentPath(path);
+                try
+                {
+                    await cloudApi.DeleteDirectory(fullPath);
+                }
+                catch (HttpRequestException err)
+                {
+                    if (!HandleHttpExceptions(err)) { throw; }
+                }
+            }
+        }
+        private void DownloadDirOnClick(object obj, EventArgs args, string path)
+        {
+            System.Diagnostics.Debug.WriteLine("download directory button clicked");
+            // TODO: implement
+        }
+        private async void DeleteFileOnClick(object obj, EventArgs args, string path)
+        {
+            System.Diagnostics.Debug.WriteLine("delete file button clicked");
+            var response = Helpers.Alerts.ShowQuestion(this, "are you sure you want to delete the file?");
+            if (response == ResponseType.Yes)
+            {
+                var fullPath = JoinWithCurrentPath(path);
+                try
+                {
+                    await cloudApi.DeleteFile(fullPath);
+                }
+                catch (HttpRequestException err)
+                {
+                    if (!HandleHttpExceptions(err)) { throw; }
+                }
+            }
+        }
+        private void DownloadFileOnClick(object obj, EventArgs args, string path)
+        {
+            System.Diagnostics.Debug.WriteLine("download file button clicked");
+            // TODO: implement
         }
         #endregion
     }
