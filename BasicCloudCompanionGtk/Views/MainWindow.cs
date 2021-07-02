@@ -313,10 +313,29 @@ namespace BasicCloudCompanionGtk.Views
             ToggleControlBoxButtons();
             await LoadCurrentDirContents();
         }
-        private void CreateDirOnClick(object obj, EventArgs args)
+        private async void CreateDirOnClick(object obj, EventArgs args)
         {
             System.Diagnostics.Debug.WriteLine("make directory button clicked");
-            // TODO: implement
+            InputWindow dialog = new(
+                this,
+                "Create Directory",
+                "Please Enter New Directory Name",
+                "Input Here..."
+            );
+            var response = dialog.Run();
+            if (response == (int)ResponseType.Ok)
+            {
+                string newDirName = dialog.Input;
+                try
+                {
+                    await cloudApi.PostCreateDirectory(CurrPath, newDirName);
+                }
+                catch (HttpRequestException err)
+                {
+                    if (!HandleHttpExceptions(err)) { throw; }
+                }
+            }
+            dialog.Destroy();
         }
         private async void DeleteDirOnClick(object obj, EventArgs args, string path)
         {
