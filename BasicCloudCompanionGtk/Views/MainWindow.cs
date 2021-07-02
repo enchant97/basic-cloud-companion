@@ -335,10 +335,27 @@ namespace BasicCloudCompanionGtk.Views
                 }
             }
         }
-        private void DownloadDirOnClick(object obj, EventArgs args, string path)
+        private async void DownloadDirOnClick(object obj, EventArgs args, string folderName)
         {
             System.Diagnostics.Debug.WriteLine("download directory button clicked");
-            // TODO: implement
+            try
+            {
+                string downloadPath = JoinWithCurrentPath(folderName);
+                Helpers.InputDialogs.ResponseAndString response = Helpers.InputDialogs.ShowSelectFolder(
+                    this,
+                    "Select Folder To Save Zip File"
+                );
+                if (response.ResponseType == ResponseType.Ok)
+                {
+                    var httpContent = await cloudApi.DownloadDirectoryAsZip(downloadPath);
+                    string savePath = response.Content + "/" + folderName.Replace("/", "_") + ".zip";
+                    await BasicCloudApi.Helpers.WriteHttpContentToFile(savePath, httpContent);
+                }
+            }
+            catch (HttpRequestException err)
+            {
+                if (!HandleHttpExceptions(err)) { throw; }
+            }
         }
         private async void DeleteFileOnClick(object obj, EventArgs args, string path)
         {
@@ -357,10 +374,27 @@ namespace BasicCloudCompanionGtk.Views
                 }
             }
         }
-        private void DownloadFileOnClick(object obj, EventArgs args, string path)
+        private async void DownloadFileOnClick(object obj, EventArgs args, string filename)
         {
             System.Diagnostics.Debug.WriteLine("download file button clicked");
-            // TODO: implement
+            try
+            {
+                string downloadPath = JoinWithCurrentPath(filename);
+                Helpers.InputDialogs.ResponseAndString response = Helpers.InputDialogs.ShowSelectFolder(
+                    this,
+                    "Select Folder To Save File"
+                );
+                if (response.ResponseType == ResponseType.Ok)
+                {
+                    var httpContent = await cloudApi.DownloadFile(downloadPath);
+                    string savePath = response.Content + "/" + filename;
+                    await BasicCloudApi.Helpers.WriteHttpContentToFile(savePath, httpContent);
+                }
+            }
+            catch (HttpRequestException err)
+            {
+                if (!HandleHttpExceptions(err)) { throw; }
+            }
         }
         #endregion
     }
