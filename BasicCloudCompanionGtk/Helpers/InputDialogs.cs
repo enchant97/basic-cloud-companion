@@ -30,5 +30,27 @@ namespace BasicCloudCompanionGtk.Helpers
             dialog.Destroy();
             return new ResponseAndString(response, folderPath);
         }
+        /// <summary>
+        /// Ask the user to select a file to open
+        /// </summary>
+        /// <param name="parent">the parent window</param>
+        /// <param name="title">a title for the dialog</param>
+        /// <returns></returns>
+        public static ResponseAndString ShowFileOpen(Window parent, string title)
+        {
+            FileChooserDialog dialog = new(
+                title,
+                parent,
+                FileChooserAction.Open
+            );
+
+            dialog.AddButton(Stock.Cancel, ResponseType.Cancel);
+            dialog.AddButton(Stock.Open, ResponseType.Ok);
+
+            ResponseType response = (ResponseType)dialog.Run();
+            string filePath = dialog.Filename;
+            dialog.Destroy();
+            return new ResponseAndString(response, filePath);
+        }
     }
 }

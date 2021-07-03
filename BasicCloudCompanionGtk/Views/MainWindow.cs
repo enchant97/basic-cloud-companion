@@ -13,6 +13,7 @@ namespace BasicCloudCompanionGtk.Views
         private readonly Button sharesBnt;
         private readonly Button createDirBnt;
         private readonly Button toParentDirBnt;
+        private readonly Button uploadFileBnt;
         private readonly Grid navigationGrid;
 
         private string Username;
@@ -45,6 +46,9 @@ namespace BasicCloudCompanionGtk.Views
             createDirBnt = new("Create Directory");
             createDirBnt.Clicked += CreateDirOnClick;
             controlBox.PackStart(createDirBnt, false, false, 0);
+            uploadFileBnt = new("Upload File");
+            uploadFileBnt.Clicked += UploadFileOnClick;
+            controlBox.PackStart(uploadFileBnt, false, false, 0);
             toParentDirBnt = new("Back");
             toParentDirBnt.Clicked += ToParentDirOnClick;
             controlBox.PackStart(toParentDirBnt, false, false, 0);
@@ -66,6 +70,7 @@ namespace BasicCloudCompanionGtk.Views
 
             sharesBnt.Sensitive = false;
             createDirBnt.Sensitive = false;
+            uploadFileBnt.Sensitive = false;
             toParentDirBnt.Sensitive = false;
         }
         private void JustLoggedIn()
@@ -84,6 +89,7 @@ namespace BasicCloudCompanionGtk.Views
                 // at root
                 sharesBnt.Sensitive = false;
                 createDirBnt.Sensitive = false;
+                uploadFileBnt.Sensitive = false;
                 toParentDirBnt.Sensitive = false;
             }
             else
@@ -91,6 +97,7 @@ namespace BasicCloudCompanionGtk.Views
                 // inside a directory
                 sharesBnt.Sensitive = true;
                 createDirBnt.Sensitive = true;
+                uploadFileBnt.Sensitive = true;
                 toParentDirBnt.Sensitive = true;
             }
         }
@@ -305,6 +312,27 @@ namespace BasicCloudCompanionGtk.Views
             ToggleControlBoxButtons();
             if (string.IsNullOrEmpty(CurrPath)) { await LoadRoots(); }
             else { await LoadCurrentDirContents(); }
+        }
+        private async void UploadFileOnClick(object obj, EventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("upload file button clicked");
+            try
+            {
+                Helpers.InputDialogs.ResponseAndString response = Helpers.InputDialogs.ShowFileOpen(
+                    this,
+                    "Select A File To Upload"
+                );
+                if (response.ResponseType == ResponseType.Ok)
+                {
+                    string fileName = System.IO.Path.GetFileName(response.Content);
+                    var fileContent = await BasicCloudApi.Helpers.ReadFileByteContent(response.Content);
+                    await cloudApi.PostUploadFile(fileContent, fileName, CurrPath);
+                }
+            }
+            catch (HttpRequestException err)
+            {
+                if (!HandleHttpExceptions(err)) { throw; }
+            }
         }
         private async void ChangeDirOnClick(object obj, EventArgs args, string path)
         {

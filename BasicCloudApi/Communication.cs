@@ -171,5 +171,23 @@ namespace BasicCloudApi
             Debug.WriteLine("got content from download file request");
             return response.Content;
         }
+        /// <summary>
+        /// Upload a file
+        /// </summary>
+        /// <param name="fileContent">the file to upload</param>
+        /// <param name="fileName">the filename to use for the file</param>
+        /// <param name="directory">the directory path to upload to</param>
+        public async Task PostUploadFile(ByteArrayContent fileContent, string fileName, string directory)
+        {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Authorization = AuthHeader;
+            MultipartFormDataContent multiPart = new();
+            StringContent directoryContent = new(directory);
+            multiPart.Add(directoryContent, "directory");
+            multiPart.Add(fileContent, "file", fileName);
+            var response = await client.PostAsync(BaseUrl + "/api/file/upload/overwrite", multiPart);
+            if (!response.IsSuccessStatusCode) { CheckForResponseErrors(response.StatusCode); }
+            Debug.WriteLine("got ok from upload file request");
+        }
     }
 }

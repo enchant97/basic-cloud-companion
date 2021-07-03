@@ -31,5 +31,14 @@ namespace BasicCloudApi
             using var fileStream = new FileStream(filepath, FileMode.CreateNew);
             await content.CopyToAsync(fileStream);
         }
+        /// <summary>
+        /// Read a file and put into HTTP ByteArrayContent object
+        /// </summary>
+        /// <param name="filepath">the filepath to read from</param>
+        /// <returns>the HTTP content to upload</returns>
+        public static async Task<ByteArrayContent> ReadFileByteContent(string filepath)
+        {
+            return new ByteArrayContent(await File.ReadAllBytesAsync(filepath));
+        }
     }
 }
