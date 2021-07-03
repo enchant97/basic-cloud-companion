@@ -47,6 +47,21 @@ namespace BasicCloudApi
             };
         }
         /// <summary>
+        /// Create a new account
+        /// </summary>
+        /// <param name="username">the username to use</param>
+        /// <param name="password">the password to use</param>
+        public async Task PostCreateAccount(string username, string password)
+        {
+            using var client = new HttpClient();
+            var response = await client.PostAsJsonAsync(
+                BaseUrl + "/api/users/",
+                new { username, password }
+            );
+            if (!response.IsSuccessStatusCode) { CheckForResponseErrors(response.StatusCode); }
+            Debug.WriteLine("got ok from create account");
+        }
+        /// <summary>
         /// Get a login token using provided details
         /// </summary>
         /// <param name="username">the users username</param>

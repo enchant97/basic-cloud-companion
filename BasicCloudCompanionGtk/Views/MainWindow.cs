@@ -9,6 +9,7 @@ namespace BasicCloudCompanionGtk.Views
 {
     class MainWindow : Window
     {
+        private readonly Button createAccoutBnt;
         private readonly Button loginBnt;
         private readonly Button sharesBnt;
         private readonly Button createDirBnt;
@@ -37,6 +38,9 @@ namespace BasicCloudCompanionGtk.Views
 
             HBox controlBox = new();
             mainBox.PackStart(controlBox, false, false, 0);
+            createAccoutBnt = new("Create Account");
+            createAccoutBnt.Clicked += CreateAccountOnClick;
+            controlBox.PackStart(createAccoutBnt, false, false, 0);
             loginBnt = new("Login");
             loginBnt.Clicked += LoginOnClick;
             controlBox.PackStart(loginBnt, false, false, 0);
@@ -66,6 +70,7 @@ namespace BasicCloudCompanionGtk.Views
         #region Misc Action Handling
         private void LoggedOut()
         {
+            createAccoutBnt.Sensitive = true;
             loginBnt.Sensitive = true;
 
             sharesBnt.Sensitive = false;
@@ -75,6 +80,7 @@ namespace BasicCloudCompanionGtk.Views
         }
         private void JustLoggedIn()
         {
+            createAccoutBnt.Sensitive = false;
             loginBnt.Sensitive = false;
             ToggleControlBoxButtons();
             _ = LoadRoots();
@@ -267,6 +273,39 @@ namespace BasicCloudCompanionGtk.Views
         }
         #endregion
         #region Button Click Handlers
+        private async void CreateAccountOnClick(object obj, EventArgs args)
+        {
+            CreateAccountWindow dialog = new(this);
+            var response = dialog.Run();
+            if (response == ((int)ResponseType.Ok))
+            {
+                string username = dialog.Username;
+                string password = dialog.Password;
+                string passwordConfirm = dialog.PasswordConfirm;
+
+                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(passwordConfirm))
+                {
+                    Helpers.Alerts.ShowWarning(this, "username or password was blank");
+                }
+                else if (!string.Equals(password, passwordConfirm))
+                {
+                    Helpers.Alerts.ShowWarning(this, "passwords do not match");
+                }
+                else
+                {
+                    try
+                    {
+                        await cloudApi.PostCreateAccount(username, password);
+                        Username = username;
+                    }
+                    catch (HttpRequestException err)
+                    {
+                        if (!HandleHttpExceptions(err)) { throw; }
+                    }
+                }
+            }
+            dialog.Destroy();
+        }
         private async void LoginOnClick(object obj, EventArgs args)
         {
             var dialog = new LoginWindow(this);
