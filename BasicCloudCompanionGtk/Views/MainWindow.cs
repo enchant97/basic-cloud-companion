@@ -9,6 +9,7 @@ namespace BasicCloudCompanionGtk.Views
 {
     class MainWindow : Window
     {
+        private readonly HBox controlBox;
         private readonly Button createAccoutBnt;
         private readonly Button loginBnt;
         private readonly Button sharesBnt;
@@ -16,6 +17,7 @@ namespace BasicCloudCompanionGtk.Views
         private readonly Button toParentDirBnt;
         private readonly Button uploadFileBnt;
         private readonly Grid navigationGrid;
+        private readonly Spinner loadingSpinner;
 
         private string Username;
         private string CurrPath;
@@ -36,7 +38,7 @@ namespace BasicCloudCompanionGtk.Views
             Label titleLabel = new("Basic Cloud Companion");
             mainBox.PackStart(titleLabel, false, false, 10);
 
-            HBox controlBox = new();
+            controlBox = new();
             mainBox.PackStart(controlBox, false, false, 0);
             createAccoutBnt = new("Create Account");
             createAccoutBnt.Clicked += CreateAccountOnClick;
@@ -61,13 +63,28 @@ namespace BasicCloudCompanionGtk.Views
             navigationGrid.ColumnHomogeneous = true;
             mainBox.PackStart(navigationGrid, true, true, 10);
 
-            Label statusLabel = new();
-            mainBox.PackEnd(statusLabel, false, false, 0);
+            loadingSpinner = new();
+            mainBox.PackEnd(loadingSpinner, false, false, 0);
 
             LoggedOut();
             ShowAll();
+            loadingSpinner.Hide();
         }
         #region Misc Action Handling
+        protected void ShowLoading()
+        {
+            controlBox.Hide();
+            navigationGrid.Hide();
+            loadingSpinner.Show();
+            loadingSpinner.Start();
+        }
+        protected void HideLoading()
+        {
+            controlBox.Show();
+            loadingSpinner.Hide();
+            loadingSpinner.Stop();
+            navigationGrid.Show();
+        }
         private void LoggedOut()
         {
             createAccoutBnt.Sensitive = true;
@@ -275,6 +292,7 @@ namespace BasicCloudCompanionGtk.Views
         #region Button Click Handlers
         private async void CreateAccountOnClick(object obj, EventArgs args)
         {
+            ShowLoading();
             CreateAccountWindow dialog = new(this);
             var response = dialog.Run();
             if (response == ((int)ResponseType.Ok))
@@ -305,9 +323,11 @@ namespace BasicCloudCompanionGtk.Views
                 }
             }
             dialog.Destroy();
+            HideLoading();
         }
         private async void LoginOnClick(object obj, EventArgs args)
         {
+            ShowLoading();
             var dialog = new LoginWindow(this);
             var response = dialog.Run();
             if (response == ((int)ResponseType.Ok))
@@ -336,24 +356,30 @@ namespace BasicCloudCompanionGtk.Views
                 }
             }
             dialog.Destroy();
+            HideLoading();
         }
         private async void NavigateToRootsOnClick(object obj, EventArgs args)
         {
+            ShowLoading();
             System.Diagnostics.Debug.WriteLine("navigate to roots button clicked");
             CurrPath = null;
             ToggleControlBoxButtons();
             await LoadRoots();
+            HideLoading();
         }
         private async void ToParentDirOnClick(object obj, EventArgs args)
         {
+            ShowLoading();
             System.Diagnostics.Debug.WriteLine("navigate to parent directory button clicked");
             CurrPath = GetCurrentParentDir();
             ToggleControlBoxButtons();
             if (string.IsNullOrEmpty(CurrPath)) { await LoadRoots(); }
             else { await LoadCurrentDirContents(); }
+            HideLoading();
         }
         private async void UploadFileOnClick(object obj, EventArgs args)
         {
+            ShowLoading();
             System.Diagnostics.Debug.WriteLine("upload file button clicked");
             try
             {
@@ -372,16 +398,20 @@ namespace BasicCloudCompanionGtk.Views
             {
                 if (!HandleHttpExceptions(err)) { throw; }
             }
+            HideLoading();
         }
         private async void ChangeDirOnClick(object obj, EventArgs args, string path)
         {
+            ShowLoading();
             System.Diagnostics.Debug.WriteLine("change directory button clicked");
             CurrPath = JoinWithCurrentPath(path);
             ToggleControlBoxButtons();
             await LoadCurrentDirContents();
+            HideLoading();
         }
         private async void CreateDirOnClick(object obj, EventArgs args)
         {
+            ShowLoading();
             System.Diagnostics.Debug.WriteLine("make directory button clicked");
             InputWindow dialog = new(
                 this,
@@ -403,9 +433,11 @@ namespace BasicCloudCompanionGtk.Views
                 }
             }
             dialog.Destroy();
+            HideLoading();
         }
         private async void DeleteDirOnClick(object obj, EventArgs args, string path)
         {
+            ShowLoading();
             System.Diagnostics.Debug.WriteLine("delete directory button clicked");
             var response = Helpers.Alerts.ShowQuestion(this, "are you sure you want to delete the directory?");
             if (response == ResponseType.Yes)
@@ -420,9 +452,11 @@ namespace BasicCloudCompanionGtk.Views
                     if (!HandleHttpExceptions(err)) { throw; }
                 }
             }
+            HideLoading();
         }
         private async void DownloadDirOnClick(object obj, EventArgs args, string folderName)
         {
+            ShowLoading();
             System.Diagnostics.Debug.WriteLine("download directory button clicked");
             try
             {
@@ -442,9 +476,11 @@ namespace BasicCloudCompanionGtk.Views
             {
                 if (!HandleHttpExceptions(err)) { throw; }
             }
+            HideLoading();
         }
         private async void DeleteFileOnClick(object obj, EventArgs args, string path)
         {
+            ShowLoading();
             System.Diagnostics.Debug.WriteLine("delete file button clicked");
             var response = Helpers.Alerts.ShowQuestion(this, "are you sure you want to delete the file?");
             if (response == ResponseType.Yes)
@@ -459,9 +495,11 @@ namespace BasicCloudCompanionGtk.Views
                     if (!HandleHttpExceptions(err)) { throw; }
                 }
             }
+            HideLoading();
         }
         private async void DownloadFileOnClick(object obj, EventArgs args, string filename)
         {
+            ShowLoading();
             System.Diagnostics.Debug.WriteLine("download file button clicked");
             try
             {
@@ -481,6 +519,7 @@ namespace BasicCloudCompanionGtk.Views
             {
                 if (!HandleHttpExceptions(err)) { throw; }
             }
+            HideLoading();
         }
         #endregion
     }
