@@ -12,6 +12,7 @@ namespace BasicCloudCompanionGtk.Views
         private readonly HBox controlBox;
         private readonly Button createAccoutBnt;
         private readonly Button loginBnt;
+        private readonly Button logoutBnt;
         private readonly Button sharesBnt;
         private readonly Button createDirBnt;
         private readonly Button toParentDirBnt;
@@ -46,6 +47,9 @@ namespace BasicCloudCompanionGtk.Views
             loginBnt = new("Login");
             loginBnt.Clicked += LoginOnClick;
             controlBox.PackStart(loginBnt, false, false, 0);
+            logoutBnt = new("Logout");
+            logoutBnt.Clicked += LogoutOnClick;
+            controlBox.PackStart(logoutBnt, false, false, 0);
             sharesBnt = new("Shares");
             sharesBnt.Clicked += NavigateToRootsOnClick;
             controlBox.PackStart(sharesBnt, false, false, 0);
@@ -66,8 +70,8 @@ namespace BasicCloudCompanionGtk.Views
             loadingSpinner = new();
             mainBox.PackEnd(loadingSpinner, false, false, 0);
 
-            LoggedOut();
             ShowAll();
+            LoggedOut();
             loadingSpinner.Hide();
         }
         #region Misc Action Handling
@@ -87,8 +91,10 @@ namespace BasicCloudCompanionGtk.Views
         }
         private void LoggedOut()
         {
-            createAccoutBnt.Sensitive = true;
-            loginBnt.Sensitive = true;
+            createAccoutBnt.Show();
+            loginBnt.Show();
+            logoutBnt.Hide();
+            ClearNavigation();
 
             sharesBnt.Sensitive = false;
             createDirBnt.Sensitive = false;
@@ -97,8 +103,9 @@ namespace BasicCloudCompanionGtk.Views
         }
         private void JustLoggedIn()
         {
-            createAccoutBnt.Sensitive = false;
-            loginBnt.Sensitive = false;
+            createAccoutBnt.Hide();
+            loginBnt.Hide();
+            logoutBnt.Show();
             ToggleControlBoxButtons();
             _ = LoadRoots();
         }
@@ -357,6 +364,11 @@ namespace BasicCloudCompanionGtk.Views
             }
             dialog.Destroy();
             HideLoading();
+        }
+        private void LogoutOnClick(object obj, EventArgs args)
+        {
+            Username = null;
+            LoggedOut();
         }
         private async void NavigateToRootsOnClick(object obj, EventArgs args)
         {
