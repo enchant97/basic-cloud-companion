@@ -63,9 +63,13 @@ namespace BasicCloudCompanionGtk.Views
             toParentDirBnt.Clicked += ToParentDirOnClick;
             controlBox.PackStart(toParentDirBnt, false, false, 0);
 
+
+            ScrolledWindow scrollWindow = new();
+            scrollWindow.HscrollbarPolicy = PolicyType.Never;
             navigationGrid = new();
+            scrollWindow.Add(navigationGrid);
             navigationGrid.ColumnHomogeneous = true;
-            mainBox.PackStart(navigationGrid, true, true, 10);
+            mainBox.PackStart(scrollWindow, true, true, 10);
 
             loadingSpinner = new();
             mainBox.PackEnd(loadingSpinner, false, false, 0);
@@ -368,6 +372,7 @@ namespace BasicCloudCompanionGtk.Views
         private void LogoutOnClick(object obj, EventArgs args)
         {
             Username = null;
+            CurrPath = null;
             LoggedOut();
         }
         private async void NavigateToRootsOnClick(object obj, EventArgs args)
