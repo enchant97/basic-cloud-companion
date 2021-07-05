@@ -6,12 +6,13 @@ namespace BasicCloudCompanionGtk.Views
     {
         private readonly Entry usernameEntry;
         private readonly Entry passwordEntry;
-        public LoginWindow(Window parent) : base("Login", parent, 0)
+        public LoginWindow(Window parent, string defaultUsername = null) : base("Login", parent, 0)
         {         
             Label captionLabel = new("Please Login");
             ContentArea.PackStart(captionLabel, false, false, 10);
 
             usernameEntry = new();
+            usernameEntry.Text = defaultUsername;
             usernameEntry.PlaceholderText = "Enter Username...";
             ContentArea.PackStart(usernameEntry, true, false, 0);
 

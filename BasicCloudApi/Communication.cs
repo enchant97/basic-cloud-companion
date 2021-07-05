@@ -19,7 +19,7 @@ namespace BasicCloudApi
         /// <summary>
         /// The base server url used (where the api is)
         /// </summary>
-        public string BaseUrl { get; private set; }
+        public string BaseUrl { get; set; }
         /// <summary>
         /// generates auth header using stored AuthToken
         /// </summary>

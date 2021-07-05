@@ -5,9 +5,11 @@ VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicCloudApi", "BasicCloudApi\BasicCloudApi.csproj", "{5FD875F9-0781-4B49-99D5-0FC1A35FB899}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicCloudCompanionCLI", "BasicCloudCompanionCLI\BasicCloudCompanionCLI.csproj", "{5E48F698-E2B7-4C48-8970-BCC5EA56C7AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicCloudCompanionCLI", "BasicCloudCompanionCLI\BasicCloudCompanionCLI.csproj", "{5E48F698-E2B7-4C48-8970-BCC5EA56C7AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicCloudCompanionGtk", "BasicCloudCompanionGtk\BasicCloudCompanionGtk.csproj", "{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicCloudCompanionGtk", "BasicCloudCompanionGtk\BasicCloudCompanionGtk.csproj", "{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicCloudConfig", "BasicCloudConfig\BasicCloudConfig.csproj", "{0B231917-A2F0-4B40-990E-0F833AC75FB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B231917-A2F0-4B40-990E-0F833AC75FB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B231917-A2F0-4B40-990E-0F833AC75FB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B231917-A2F0-4B40-990E-0F833AC75FB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B231917-A2F0-4B40-990E-0F833AC75FB7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

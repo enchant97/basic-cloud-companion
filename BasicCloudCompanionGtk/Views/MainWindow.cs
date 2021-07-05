@@ -10,6 +10,7 @@ namespace BasicCloudCompanionGtk.Views
     class MainWindow : Window
     {
         private readonly HBox controlBox;
+        private readonly Button changeServerUrlBnt;
         private readonly Button createAccoutBnt;
         private readonly Button loginBnt;
         private readonly Button logoutBnt;
@@ -20,14 +21,17 @@ namespace BasicCloudCompanionGtk.Views
         private readonly Grid navigationGrid;
         private readonly Spinner loadingSpinner;
 
-        private string Username;
+        private string Username
+        {
+            get => BasicCloudConfig.Config.Username;
+            set => BasicCloudConfig.Config.Username = value;
+        }
         private string CurrPath;
         private readonly BasicCloudApi.Communication cloudApi;
         private string[] RootPaths;
         public MainWindow() : base("Basic Cloud Companion - Gtk Edition")
         {
-            // TODO: load this from config
-            cloudApi = new("http://127.0.0.1:8000");
+            cloudApi = new(BasicCloudConfig.Config.BasicCloudUrl);
 
             SetDefaultSize(250, 200);
             SetPosition(WindowPosition.Center);
@@ -41,6 +45,9 @@ namespace BasicCloudCompanionGtk.Views
 
             controlBox = new();
             mainBox.PackStart(controlBox, false, false, 0);
+            changeServerUrlBnt = new("Change Server Url");
+            changeServerUrlBnt.Clicked += ChangeServerUrlOnClick;
+            controlBox.PackStart(changeServerUrlBnt, false, false, 0);
             createAccoutBnt = new("Create Account");
             createAccoutBnt.Clicked += CreateAccountOnClick;
             controlBox.PackStart(createAccoutBnt, false, false, 0);
@@ -95,22 +102,29 @@ namespace BasicCloudCompanionGtk.Views
         }
         private void LoggedOut()
         {
+            changeServerUrlBnt.Show();
             createAccoutBnt.Show();
             loginBnt.Show();
             logoutBnt.Hide();
             ClearNavigation();
 
-            sharesBnt.Sensitive = false;
-            createDirBnt.Sensitive = false;
-            uploadFileBnt.Sensitive = false;
-            toParentDirBnt.Sensitive = false;
+            sharesBnt.Hide();
+            createDirBnt.Hide();
+            uploadFileBnt.Hide();
+            toParentDirBnt.Hide();
         }
         private void JustLoggedIn()
         {
+            changeServerUrlBnt.Hide();
             createAccoutBnt.Hide();
             loginBnt.Hide();
             logoutBnt.Show();
-            ToggleControlBoxButtons();
+
+            sharesBnt.Show();
+            createDirBnt.Show();
+            uploadFileBnt.Show();
+            toParentDirBnt.Show();
+
             _ = LoadRoots();
         }
         /// <summary>
@@ -301,6 +315,26 @@ namespace BasicCloudCompanionGtk.Views
         }
         #endregion
         #region Button Click Handlers
+        private void ChangeServerUrlOnClick(object obj, EventArgs args)
+        {
+            ShowLoading();
+            InputWindow dialog = new(this, "Change Server Url", "Please Enter Server Url", "https://example.com...");
+            var response = dialog.Run();
+            if (response == ((int)ResponseType.Ok))
+            {
+                if (string.IsNullOrEmpty(dialog.Input))
+                {
+                    Helpers.Alerts.ShowError(this, "no input entered");
+                }
+                else
+                {
+                    BasicCloudConfig.Config.BasicCloudUrl = dialog.Input;
+                    cloudApi.BaseUrl = BasicCloudConfig.Config.BasicCloudUrl;
+                }
+            }
+            dialog.Destroy();
+            HideLoading();
+        }
         private async void CreateAccountOnClick(object obj, EventArgs args)
         {
             ShowLoading();
@@ -339,7 +373,7 @@ namespace BasicCloudCompanionGtk.Views
         private async void LoginOnClick(object obj, EventArgs args)
         {
             ShowLoading();
-            var dialog = new LoginWindow(this);
+            var dialog = new LoginWindow(this, Username);
             var response = dialog.Run();
             if (response == ((int)ResponseType.Ok))
             {
