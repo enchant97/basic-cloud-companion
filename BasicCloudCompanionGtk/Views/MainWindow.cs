@@ -1,7 +1,6 @@
 ﻿using Gtk;
 using System;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -9,6 +8,7 @@ namespace BasicCloudCompanionGtk.Views
 {
     class MainWindow : Window
     {
+        #region Properties And Fields
         private readonly HBox controlBox;
         private readonly Button changeServerUrlBnt;
         private readonly Button createAccoutBnt;
@@ -29,6 +29,7 @@ namespace BasicCloudCompanionGtk.Views
         private string CurrPath;
         private readonly BasicCloudApi.Communication cloudApi;
         private string[] RootPaths;
+        #endregion
         public MainWindow() : base("Basic Cloud Companion - Gtk Edition")
         {
             cloudApi = new(BasicCloudConfig.Config.BasicCloudUrl);
@@ -156,35 +157,13 @@ namespace BasicCloudCompanionGtk.Views
         #endregion
         #region Utility
         /// <summary>
-        /// Handle known HTTP errors
-        /// </summary>
-        /// <param name="exception">the HTTP exception</param>
-        /// <returns>returns if the exception was handled</returns>
-        protected bool HandleHttpExceptions(HttpRequestException exception)
-        {
-            if (exception.InnerException is System.Net.Sockets.SocketException)
-            {
-                Helpers.Alerts.ShowError(this, "No server connection");
-            }
-            else if (exception.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                Helpers.Alerts.ShowError(this, "Not authorised");
-            }
-            else { return false;  }
-            return true;
-        }
-        /// <summary>
         /// allows smart joining of a path with the current path
         /// </summary>
         /// <param name="pathPart">the path to join</param>
         /// <returns>the joined path</returns>
         protected string JoinWithCurrentPath(string pathPart)
         {
-            if (!string.IsNullOrEmpty(CurrPath))
-            {
-                return CurrPath + "/" + pathPart;
-            }
-            return pathPart;
+            return BasicCloudApi.Helpers.JoinBasePath(CurrPath, pathPart);
         }
         /// <summary>
         /// Gets the parent directory from the CurrPath,
@@ -294,7 +273,7 @@ namespace BasicCloudCompanionGtk.Views
             }
             catch (HttpRequestException err)
             {
-                if (!HandleHttpExceptions(err)) { throw; }
+                if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
             }
         }
         /// <summary>
@@ -310,7 +289,7 @@ namespace BasicCloudCompanionGtk.Views
             }
             catch (HttpRequestException err)
             {
-                if (!HandleHttpExceptions(err)) { throw; }
+                if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
             }
         }
         #endregion
@@ -363,7 +342,7 @@ namespace BasicCloudCompanionGtk.Views
                     }
                     catch (HttpRequestException err)
                     {
-                        if (!HandleHttpExceptions(err)) { throw; }
+                        if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
                     }
                 }
             }
@@ -391,7 +370,7 @@ namespace BasicCloudCompanionGtk.Views
                     }
                     catch (HttpRequestException err)
                     {
-                        if (!HandleHttpExceptions(err)) { throw; }
+                        if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
                     }
                 }
                 else
@@ -447,7 +426,7 @@ namespace BasicCloudCompanionGtk.Views
             }
             catch (HttpRequestException err)
             {
-                if (!HandleHttpExceptions(err)) { throw; }
+                if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
             }
             HideLoading();
         }
@@ -480,7 +459,7 @@ namespace BasicCloudCompanionGtk.Views
                 }
                 catch (HttpRequestException err)
                 {
-                    if (!HandleHttpExceptions(err)) { throw; }
+                    if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
                 }
             }
             dialog.Destroy();
@@ -500,7 +479,7 @@ namespace BasicCloudCompanionGtk.Views
                 }
                 catch (HttpRequestException err)
                 {
-                    if (!HandleHttpExceptions(err)) { throw; }
+                    if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
                 }
             }
             HideLoading();
@@ -525,7 +504,7 @@ namespace BasicCloudCompanionGtk.Views
             }
             catch (HttpRequestException err)
             {
-                if (!HandleHttpExceptions(err)) { throw; }
+                if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
             }
             HideLoading();
         }
@@ -543,7 +522,7 @@ namespace BasicCloudCompanionGtk.Views
                 }
                 catch (HttpRequestException err)
                 {
-                    if (!HandleHttpExceptions(err)) { throw; }
+                    if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
                 }
             }
             HideLoading();
@@ -568,7 +547,7 @@ namespace BasicCloudCompanionGtk.Views
             }
             catch (HttpRequestException err)
             {
-                if (!HandleHttpExceptions(err)) { throw; }
+                if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
             }
             HideLoading();
         }

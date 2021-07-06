@@ -22,6 +22,20 @@ namespace BasicCloudApi
             return currDirectory.Substring(0, lastSlashI);
         }
         /// <summary>
+        /// Join a path part with a base directory path
+        /// </summary>
+        /// <param name="basePath">The base directory path</param>
+        /// <param name="pathPart">The path part to join with the base</param>
+        /// <returns>The joined path</returns>
+        public static string JoinBasePath(string basePath, string pathPart)
+        {
+            if (!string.IsNullOrEmpty(basePath))
+            {
+                return basePath + "/" + pathPart;
+            }
+            return pathPart;
+        }
+        /// <summary>
         /// write HTTP content to a file
         /// </summary>
         /// <param name="filepath">the filepath to save to</param>
