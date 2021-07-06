@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using static BasicCloudApi.Helpers;
 
 namespace BasicCloudCompanionCLI
 {
@@ -78,7 +79,7 @@ namespace BasicCloudCompanionCLI
         static void DoLogin()
         {
             string password = AskLoginDetails();
-            
+
             cloudApi.PostLoginToken(Username, password, true).Wait();
             Console.WriteLine("Welcome " + Username);
             Thread.Sleep(500);
@@ -168,7 +169,7 @@ namespace BasicCloudCompanionCLI
                     else
                     {
                         // Navigate back a directory
-                        CurrPath = BasicCloudApi.Helpers.GetParentDir(CurrPath);
+                        CurrPath = GetParentDir(CurrPath);
                     }
                 }
                 else
@@ -176,7 +177,7 @@ namespace BasicCloudCompanionCLI
                     var current_content = contents[choice - 1];
                     if (current_content.meta.is_directory) { ShowFolderControlMenu(current_content.name); }
                     else { ShowFileControlMenu(current_content.name); }
-                    
+
                 }
             }
         }
@@ -204,15 +205,15 @@ namespace BasicCloudCompanionCLI
                     if (downloadPath != null)
                     {
                         Console.WriteLine("Downloading File...");
-                        var httpContent = cloudApi.DownloadFile(CurrPath + "/" + fileName).Result;
+                        var httpContent = cloudApi.DownloadFile(JoinBasePath(CurrPath, fileName)).Result;
                         Console.WriteLine("Writing To System");
-                        BasicCloudApi.Helpers.WriteHttpContentToFile(downloadPath, httpContent).Wait();
+                        WriteHttpContentToFile(downloadPath, httpContent).Wait();
                         Console.Clear();
                     }
                 }
                 else if (choice == 3 && allowEdit == true)
                 {
-                    string deletePath = (CurrPath + "/" + fileName);
+                    string deletePath = JoinBasePath(CurrPath, fileName);
                     Console.Clear();
                     Console.WriteLine("Deleting File...");
                     cloudApi.DeleteFile(deletePath).Wait();
@@ -246,7 +247,8 @@ namespace BasicCloudCompanionCLI
                 else if (choice == 1) { }
                 else if (choice == 2)
                 {
-                    CurrPath += "/" + folderName;
+
+                    CurrPath = JoinBasePath(CurrPath, folderName);
                 }
                 else if (choice == 3)
                 {
@@ -256,13 +258,13 @@ namespace BasicCloudCompanionCLI
                         Console.WriteLine("Downloading Zip...");
                         var httpContent = cloudApi.DownloadDirectoryAsZip(CurrPath + "/" + folderName).Result;
                         Console.WriteLine("Writing To System");
-                        BasicCloudApi.Helpers.WriteHttpContentToFile(downloadPath, httpContent).Wait();
+                        WriteHttpContentToFile(downloadPath, httpContent).Wait();
                         Console.Clear();
                     }
                 }
                 else if (choice == 4 && allowEdit == true)
                 {
-                    string deletePath = (CurrPath + "/" + folderName);
+                    string deletePath = JoinBasePath(CurrPath, folderName);
                     Console.Clear();
                     Console.WriteLine("Deleting Directory...");
                     cloudApi.DeleteDirectory(deletePath).Wait();
