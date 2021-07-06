@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicCloudCompanionCLI", "B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicCloudCompanionGtk", "BasicCloudCompanionGtk\BasicCloudCompanionGtk.csproj", "{3F70EE7D-7AA8-4A2D-8964-3999AE22C962}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicCloudConfig", "BasicCloudConfig\BasicCloudConfig.csproj", "{0B231917-A2F0-4B40-990E-0F833AC75FB7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasicCloudConfig", "BasicCloudConfig\BasicCloudConfig.csproj", "{0B231917-A2F0-4B40-990E-0F833AC75FB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicCloudTests", "BasicCloudTests\BasicCloudTests.csproj", "{94E1B72A-BFA1-4809-9919-793A92902923}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{0B231917-A2F0-4B40-990E-0F833AC75FB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B231917-A2F0-4B40-990E-0F833AC75FB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B231917-A2F0-4B40-990E-0F833AC75FB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94E1B72A-BFA1-4809-9919-793A92902923}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94E1B72A-BFA1-4809-9919-793A92902923}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94E1B72A-BFA1-4809-9919-793A92902923}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94E1B72A-BFA1-4809-9919-793A92902923}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
