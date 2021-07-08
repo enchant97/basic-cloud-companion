@@ -13,6 +13,10 @@ namespace BasicCloudApi
     public class Communication
     {
         /// <summary>
+        /// The current version that Communication is compatible with
+        /// </summary>
+        public static Version ApiVersion = new Version("0.1.0");
+        /// <summary>
         /// The auth token to use when authentication is required
         /// </summary>
         public Types.Token AuthToken { get; private set; }
@@ -45,6 +49,22 @@ namespace BasicCloudApi
                 HttpStatusCode.Unauthorized => new HttpRequestException("Unauthorized", null, HttpStatusCode.Unauthorized),
                 _ => new HttpRequestException("Unhandled HTTP error"),
             };
+        }
+        /// <summary>
+        /// Get the api version that is running on the server
+        /// </summary>
+        public async Task<Types.ApiVersion> GetApiVersion()
+        {
+            using var client = new HttpClient();
+            var response = await client.GetAsync(BaseUrl + "/api/version");
+            if (!response.IsSuccessStatusCode) { CheckForResponseErrors(response.StatusCode); }
+            var versionString = await response.Content.ReadFromJsonAsync<Types.ApiVersionString>();
+            var version = new Types.ApiVersion(
+                new Version(versionString.version),
+                new Version(versionString.oldest_compatible)
+            );
+            Debug.WriteLine("got api version: " + version.ToString());
+            return version;
         }
         /// <summary>
         /// Create a new account

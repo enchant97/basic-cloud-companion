@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -53,6 +54,22 @@ namespace BasicCloudApi
         public static async Task<ByteArrayContent> ReadFileByteContent(string filepath)
         {
             return new ByteArrayContent(await File.ReadAllBytesAsync(filepath));
+        }
+        /// <summary>
+        /// Check whether a app version is compatible with the server version
+        /// </summary>
+        /// <param name="appVersion">the current app version</param>
+        /// <param name="serverVersion">the server version</param>
+        /// <returns>whether the app is compatible</returns>
+        public static bool IsAppCompatible(Version appVersion, Types.ApiVersion serverVersion)
+        {
+            if (
+                appVersion.CompareTo(serverVersion.oldest_compatible) >= 0 &&
+                appVersion.CompareTo(serverVersion.version) <= 0)
+            {
+                return true;
+            }
+            return false;
         }
     }
 }

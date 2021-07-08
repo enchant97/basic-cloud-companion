@@ -352,34 +352,44 @@ namespace BasicCloudCompanionGtk.Views
         private async void LoginOnClick(object obj, EventArgs args)
         {
             ShowLoading();
-            var dialog = new LoginWindow(this, Username);
-            var response = dialog.Run();
-            if (response == ((int)ResponseType.Ok))
-            {
-                string username = dialog.Username;
-                string password = dialog.Password;
 
-                if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+            var serverVersion = await cloudApi.GetApiVersion();
+
+            if (BasicCloudApi.Helpers.IsAppCompatible(BasicCloudApi.Communication.ApiVersion, serverVersion))
+            {
+                var dialog = new LoginWindow(this, Username);
+                var response = dialog.Run();
+                if (response == ((int)ResponseType.Ok))
                 {
-                    try
+                    string username = dialog.Username;
+                    string password = dialog.Password;
+
+                    if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
                     {
-                    // username and password was not blank
-                    await cloudApi.PostLoginToken(username, password, true);
-                    Username = username;
-                    JustLoggedIn();
+                        try
+                        {
+                        // username and password was not blank
+                        await cloudApi.PostLoginToken(username, password, true);
+                        Username = username;
+                        JustLoggedIn();
+                        }
+                        catch (HttpRequestException err)
+                        {
+                            if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
+                        }
                     }
-                    catch (HttpRequestException err)
+                    else
                     {
-                        if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
+                        // username and password was blank
+                        Helpers.Alerts.ShowWarning(this, "username or password was blank");
                     }
                 }
-                else
-                {
-                    // username and password was blank
-                    Helpers.Alerts.ShowWarning(this, "username or password was blank");
-                }
+                dialog.Destroy();
             }
-            dialog.Destroy();
+            else
+            {
+                Helpers.Alerts.ShowError(this, "API in app not compatible with server");
+            }
             HideLoading();
         }
         private void LogoutOnClick(object obj, EventArgs args)
