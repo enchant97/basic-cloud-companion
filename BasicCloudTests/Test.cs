@@ -7,21 +7,12 @@ namespace BasicCloudTests
 {
     [TestFixture]
     public class HelperTests{
-        [Test]
-        public void TestGetParentDir()
+        [TestCase("homes/test/something", "homes/test", TestName = "Test_Valid")]
+        [TestCase("shared", "", TestName = "Test_Root")]
+        public void TestGetParentDir(string testDirectory, string expectedResult)
         {
-            string testDirectory = "homes/test/something";
-            string expectedResult = "homes/test";
             string actualResult = Helpers.GetParentDir(testDirectory);
-            Assert.AreEqual(expectedResult, actualResult);
-        }
-        [Test]
-        public void TestGetParentDir2()
-        {
-            string testDirectory = "shared";
-            string expectedResult = string.Empty;
-            string actualResult = Helpers.GetParentDir(testDirectory);
-            Assert.AreEqual(expectedResult, actualResult);
+            Assert.That(expectedResult == actualResult);
         }
     }
     [TestFixture]
@@ -64,6 +55,11 @@ namespace BasicCloudTests
             apiCommunication = new(apiUrl, validUserCreds.Token);
         }
         [Test]
+        public void TestGetVersion()
+        {
+            Assert.DoesNotThrowAsync(async () => await apiCommunication.GetApiVersion());
+        }
+        [Test]
         public void TestPostCreateAccount()
         {
             string username = "somerandomuser";
@@ -80,8 +76,8 @@ namespace BasicCloudTests
         public async Task TestGetRoots()
         {
             var roots = await apiCommunication.GetDirectoryRoots();
-            Assert.AreEqual(roots.shared, "shared");
-            Assert.AreEqual(roots.home, "homes/" + validUserCreds.Username);
+            Assert.That(roots.shared == "shared");
+            Assert.That(roots.home == "homes/" + validUserCreds.Username);
         }
     }
 }
