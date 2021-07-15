@@ -12,7 +12,10 @@ namespace BasicCloudCompanionGtk.Views
             ContentArea.PackStart(captionLabel, false, false, 10);
 
             usernameEntry = new();
-            usernameEntry.Text = defaultUsername;
+            if (defaultUsername != null)
+            {
+                usernameEntry.Text = defaultUsername;
+            }
             usernameEntry.PlaceholderText = "Enter Username...";
             ContentArea.PackStart(usernameEntry, true, false, 0);
 
