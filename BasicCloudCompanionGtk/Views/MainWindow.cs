@@ -353,31 +353,26 @@ namespace BasicCloudCompanionGtk.Views
         {
             ShowLoading();
 
-            var serverVersion = await cloudApi.GetApiVersion();
-
-            if (BasicCloudApi.Helpers.IsAppCompatible(BasicCloudApi.Communication.ApiVersion, serverVersion))
+            try
             {
-                var dialog = new LoginWindow(this, Username);
-                var response = dialog.Run();
-                if (response == ((int)ResponseType.Ok))
-                {
-                    string username = dialog.Username;
-                    string password = dialog.Password;
+                var serverVersion = await cloudApi.GetApiVersion();
 
-                    if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+                if (BasicCloudApi.Helpers.IsAppCompatible(BasicCloudApi.Communication.ApiVersion, serverVersion))
+                {
+                    var dialog = new LoginWindow(this, Username);
+                    var response = dialog.Run();
+                    if (response == ((int)ResponseType.Ok))
                     {
-                        try
+                        string username = dialog.Username;
+                        string password = dialog.Password;
+
+                        if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
                         {
-                        // username and password was not blank
-                        await cloudApi.PostLoginToken(username, password, true);
-                        Username = username;
-                        JustLoggedIn();
+                            // username and password was not blank
+                            await cloudApi.PostLoginToken(username, password, true);
+                            Username = username;
+                            JustLoggedIn();
                         }
-                        catch (HttpRequestException err)
-                        {
-                            if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
-                        }
-                    }
                     else
                     {
                         // username and password was blank
@@ -385,10 +380,15 @@ namespace BasicCloudCompanionGtk.Views
                     }
                 }
                 dialog.Destroy();
+                }
+                else
+                {
+                    Helpers.Alerts.ShowError(this, "API in app not compatible with server");
+                }
             }
-            else
+            catch (HttpRequestException err)
             {
-                Helpers.Alerts.ShowError(this, "API in app not compatible with server");
+                if (!Helpers.Handlers.ShowHttpExceptionAlert(this, err)) { throw; }
             }
             HideLoading();
         }
